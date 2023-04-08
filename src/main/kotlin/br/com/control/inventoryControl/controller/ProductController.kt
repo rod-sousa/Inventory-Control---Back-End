@@ -5,11 +5,16 @@ import br.com.control.inventoryControl.dto.ProductView
 import br.com.control.inventoryControl.dto.UpdateProductForm
 import br.com.control.inventoryControl.service.ProductService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
+
 import java.util.*
 
 @CrossOrigin(origins = arrayOf("http://localhost:4200"))
@@ -18,8 +23,11 @@ import java.util.*
 class ProductController (private val service: ProductService){
 
     @GetMapping
-    fun productList(): List<ProductView>{
-        return service.list()
+    fun productList(
+        @RequestParam(required = false) nameProduct: String?,
+        @PageableDefault(sort = ["id"], direction = Sort.Direction.DESC) pagination: Pageable
+        ): Page<ProductView> {
+        return service.list(nameProduct, pagination)
     }
 
     @GetMapping("/{id}")
@@ -37,7 +45,6 @@ class ProductController (private val service: ProductService){
         val uri = uriBuilder.path("/product/${productView.id}").build().toUri()
         return ResponseEntity.created(uri).body(productView)
     }
-
 
     @PutMapping
     @Transactional

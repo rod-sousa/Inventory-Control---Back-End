@@ -10,7 +10,7 @@ class ProductFormMapper : Mapper<ProductForm, Product>{
     override fun map(p: ProductForm): Product {
         return Product(
             name = p.name,
-            code = p.code,
+            amount = p.value,
             description = p.description,
             color = p.color,
             quantity = p.quantity

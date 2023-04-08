@@ -5,9 +5,11 @@ import br.com.control.inventoryControl.dto.ProductView
 import br.com.control.inventoryControl.dto.UpdateProductForm
 import br.com.control.inventoryControl.mapper.ProductFormMapper
 import br.com.control.inventoryControl.mapper.ProductViewMapper
-import br.com.control.inventoryControl.model.Product
 import br.com.control.inventoryControl.repository.ProductRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+
 import java.util.stream.Collectors
 
 @Service
@@ -17,11 +19,16 @@ class ProductService(
     private val productFormMapper: ProductFormMapper
     ){
 
-    fun list(): List<ProductView> {
-        return repository.findAll().stream().map {
+    fun list(nameProduct: String?, pagination: Pageable): Page<ProductView> {
+        val productList =
+            if (nameProduct == null) repository.findAll(pagination)
+            else repository.findByName(nameProduct, pagination)
+
+        return productList.map {
                 p -> productViewMapper.map(p)
-        }.collect(Collectors.toList())
+        }
     }
+
 
     fun searchById(id: Long): ProductView {
         val product = repository.findById(id).get()
@@ -37,7 +44,7 @@ class ProductService(
     fun update(form: UpdateProductForm) : ProductView {
         val product = repository.findById(form.id).get()
         product.name = form.name
-        product.code = form.code
+        product.amount = form.value
         product.description = form.description
         product.color = form.color
         product.quantity = form.quantity

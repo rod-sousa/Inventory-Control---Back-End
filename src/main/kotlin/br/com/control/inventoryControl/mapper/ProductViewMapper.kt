@@ -11,12 +11,11 @@ class ProductViewMapper: Mapper<Product, ProductView> {
         return ProductView(
             id = p.id,
             name = p.name,
-            code = p.code,
+            value = p.amount,
             description = p.description,
             color = p.color,
             quantity = p.quantity,
-            alertMin = p.alertMin
+            alertMin = p.quantity.toInt() < 3
         )
     }
-
 }
