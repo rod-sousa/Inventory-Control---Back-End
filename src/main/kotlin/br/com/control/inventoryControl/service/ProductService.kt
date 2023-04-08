@@ -6,58 +6,47 @@ import br.com.control.inventoryControl.dto.UpdateProductForm
 import br.com.control.inventoryControl.mapper.ProductFormMapper
 import br.com.control.inventoryControl.mapper.ProductViewMapper
 import br.com.control.inventoryControl.model.Product
+import br.com.control.inventoryControl.repository.ProductRepository
 import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 
 @Service
 class ProductService(
-    private var productList: List<Product> = ArrayList(),
+    private val repository: ProductRepository,
     private val productViewMapper: ProductViewMapper,
     private val productFormMapper: ProductFormMapper
     ){
 
     fun list(): List<ProductView> {
-        return productList.stream().map {
+        return repository.findAll().stream().map {
                 p -> productViewMapper.map(p)
         }.collect(Collectors.toList())
     }
 
     fun searchById(id: Long): ProductView {
-        val product = productList.stream().filter { t ->
-            t.id == id
-        }.findFirst().get()
+        val product = repository.findById(id).get()
         return productViewMapper.map(product)
     }
 
     fun registerProduct(form: ProductForm): ProductView{
         val product = productFormMapper.map(form)
-        product.id = productList.size.toLong() + 1
-        productList = productList.plus(product)
+        repository.save(product)
         return productViewMapper.map(product)
     }
 
     fun update(form: UpdateProductForm) : ProductView {
-        val product = productList.stream().filter { p ->
-            p.id == form.id
-        }.findFirst().get()
-        val productUpdate = Product(
-            id = form.id,
-            name = form.name,
-            code = form.code,
-            description = form.description,
-            color = form.color,
-            quantity = form.quantity,
-            alertMin = product.alertMin
-        )
-        productList = productList.minus(product).plus(productUpdate)
-        return productViewMapper.map(productUpdate)
+        val product = repository.findById(form.id).get()
+        product.name = form.name
+        product.code = form.code
+        product.description = form.description
+        product.color = form.color
+        product.quantity = form.quantity
+
+        return productViewMapper.map(product)
     }
 
     fun delete(id: Long) {
-        val product = productList.stream().filter { p ->
-            p.id == id
-        }.findFirst().get()
-        productList = productList.minus(product)
+        repository.deleteById(id)
     }
 
 }

@@ -7,6 +7,7 @@ import br.com.control.inventoryControl.service.ProductService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
@@ -27,6 +28,7 @@ class ProductController (private val service: ProductService){
     }
 
     @PostMapping
+    @Transactional
     fun registerProduct(
         @RequestBody @Valid form: ProductForm,
         uriBuilder: UriComponentsBuilder
@@ -38,6 +40,7 @@ class ProductController (private val service: ProductService){
 
 
     @PutMapping
+    @Transactional
     fun update(@RequestBody @Valid form: UpdateProductForm) : ResponseEntity<ProductView>{
         val productView = service.update(form)
         return ResponseEntity.ok(productView)
@@ -45,6 +48,7 @@ class ProductController (private val service: ProductService){
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
     fun delete(@PathVariable id: Long){
         service.delete(id)
     }
