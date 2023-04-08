@@ -29,17 +29,18 @@ class ProductService(
         return productViewMapper.map(product)
     }
 
-    fun registerProduct(form: ProductForm) {
+    fun registerProduct(form: ProductForm): ProductView{
         val product = productFormMapper.map(form)
         product.id = productList.size.toLong() + 1
         productList = productList.plus(product)
+        return productViewMapper.map(product)
     }
 
-    fun update(form: UpdateProductForm) {
+    fun update(form: UpdateProductForm) : ProductView {
         val product = productList.stream().filter { p ->
             p.id == form.id
         }.findFirst().get()
-        productList = productList.minus(product).plus(Product(
+        val productUpdate = Product(
             id = form.id,
             name = form.name,
             code = form.code,
@@ -47,7 +48,9 @@ class ProductService(
             color = form.color,
             quantity = form.quantity,
             alertMin = product.alertMin
-        ))
+        )
+        productList = productList.minus(product).plus(productUpdate)
+        return productViewMapper.map(productUpdate)
     }
 
     fun delete(id: Long) {
